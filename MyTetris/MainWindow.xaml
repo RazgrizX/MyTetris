@@ -12,10 +12,11 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid x:Name="GridField" HorizontalAlignment="Left" Grid.Column="0" Width="320"  Height="640" Margin="10,10,0,-102" VerticalAlignment="Top"/>
-        <Label x:Name="label" Content="Label" Grid.Column="1" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="btnTestField" Content="Test Field" Grid.Column="1" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="75" Click="btnTestField_Click"/>
-        <Button x:Name="btnStart" Content="Start" Grid.Column="1" HorizontalAlignment="Left" Margin="10,68,0,0" VerticalAlignment="Top" Width="75" Click="btnStart_Click"/>
-        <Button x:Name="btnObstacle" Content="DrawObstacle" Grid.Column="1" HorizontalAlignment="Left" Margin="10,95,0,0" VerticalAlignment="Top" Width="75" Click="btnObstacle_Click"/>
+        <Label x:Name="lblScore" Content="Score:" Grid.Column="1" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="btnTestField" Content="Test Field" Grid.Column="1" HorizontalAlignment="Left" Margin="10,340,0,0" VerticalAlignment="Top" Width="88" Click="btnTestField_Click"/>
+        <Button x:Name="btnStart" Content="Start" Grid.Column="1" HorizontalAlignment="Left" Margin="10,367,0,0" VerticalAlignment="Top" Width="88" Click="btnStart_Click"/>
+        <Button x:Name="btnObstacle" Content="DrawObstacle" Grid.Column="1" HorizontalAlignment="Left" Margin="10,394,0,0" VerticalAlignment="Top" Width="88" Click="btnObstacle_Click"/>
+        <Label x:Name="label" Content="xxx" Grid.Column="1" HorizontalAlignment="Left" Margin="52,10,0,0" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

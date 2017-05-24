@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace MyTetris
 {
@@ -22,6 +23,7 @@ namespace MyTetris
         private int[,] Field = new int[cols, rows];
         private int[,] Piece = new int[cols, rows];
         private Tetramino tetramino;
+        private static readonly Random getrandom = new Random();
 
         public MainWindow()
         {
@@ -78,25 +80,25 @@ namespace MyTetris
                     brush = Brushes.Transparent;
                     break;
                 case 1:
-                    brush = Brushes.Red;
+                    brush = Brushes.Crimson;
                     break;
                 case 2:
-                    brush = Brushes.Orange;
+                    brush = Brushes.OrangeRed;
                     break;
                 case 3:
-                    brush = Brushes.Yellow;
+                    brush = Brushes.Gold;
                     break;
                 case 4:
                     brush = Brushes.Green;
                     break;
                 case 5:
-                    brush = Brushes.Cyan;
+                    brush = Brushes.LightSkyBlue;
                     break;
                 case 6:
                     brush = Brushes.Blue;
                     break;
                 case 7:
-                    brush = Brushes.Violet;
+                    brush = Brushes.DarkViolet;
                     break;
                 default:
                     break;
@@ -109,14 +111,11 @@ namespace MyTetris
             if (over())
             {
                 MessageBox.Show("Your Score: xxx", "Game over");
-                Array.Clear(Field, 0, Field.Length);
-                Array.Clear(Piece, 0, Piece.Length);
                 tetramino = null;
             }
             else
             {
-                Random n = new Random();
-                tetramino = new Tetramino(n.Next(1, 8));
+                tetramino = new Tetramino(getrandom.Next(1, 8));
                 movedown();
             }
         }
@@ -133,18 +132,16 @@ namespace MyTetris
         private void btnTestField_Click(object sender, RoutedEventArgs e)
         {
             Array.Clear(Field, 0, Field.Length);
-            Random n = new Random();
             for (int i = 0; i < 50; i++)
             {
-                Field[n.Next(0, cols), n.Next(0, rows)] = n.Next(0, 8);
+                Field[getrandom.Next(0, cols), getrandom.Next(0, rows)] = getrandom.Next(0, 8);
             }
             drawfield();
         }
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
-            nextpiece();
-            drawfield();
+            newgame();
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -215,6 +212,7 @@ namespace MyTetris
             {
                 Field[(int)(tetramino.position.X + tetramino.shape[i].X), (int)(tetramino.position.Y + tetramino.shape[i].Y)] = tetramino.colorcode;
             }
+            checklines();
         }
 
         private bool over()
@@ -228,6 +226,75 @@ namespace MyTetris
                 }
             }
             return over;
+        }
+
+        private void checklines()
+        {
+            int[] full = new int[4];
+            for (int i = 0; i < 4; i++)
+            {
+                int line = (int)(tetramino.position.Y + tetramino.shape[i].Y);
+                bool all = true;
+                for (int j = 0; j < cols; j++)
+                {
+                    if (Field[j, line] == 0)
+                    {
+                        all = false;
+                    }
+                }
+                int size = full.Count(x => x != 0);
+                bool unic = true;
+                for (int u=0; u < size; u++)
+                {
+                    if (full[u] == line)
+                        unic = false; 
+                }
+                if (all && unic)
+                    full[size] = line;
+            }
+            if (full.Count(x => x != 0) > 0)
+                clearlines(full);
+        }
+
+        private async void clearlines(int[] full)
+        {
+            int count = full.Count(x => x != 0);
+
+            for(int k=0; k<7;k++)
+            { 
+                for (int i = 0; i < count; i++)
+                {
+                    for (int j = 0; j < cols; j++)
+                    {
+                        Field[j, full[i]] = getrandom.Next(1,8);
+                    }
+                }
+                drawfield();
+                await Task.Delay(100);
+            }
+            
+            for (int l = 0; l < count; l++)
+            {
+                int line = full.Where(f => f > 0).Min();
+                for (int i = line; i > 0; i--)
+                {
+                    for (int j = 0; j < cols; j++)
+                    {
+                        Field[j, i] =Field[j,i-1];              
+                    }
+                }
+                full[Array.IndexOf(full, line)] = 0;
+            }
+            drawfield();
+            await Task.Delay(500);
+        }
+
+        private void newgame()
+        {
+            Array.Clear(Field, 0, Field.Length);
+            Array.Clear(Piece, 0, Piece.Length);
+            nextpiece();
+            drawfield();
         }
     }
 }
