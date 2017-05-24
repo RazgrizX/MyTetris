@@ -26,6 +26,7 @@ namespace MyTetris
         public MainWindow()
         {
             InitializeComponent();
+            drawfield();
         }
 
         private void drawfield()
@@ -39,7 +40,8 @@ namespace MyTetris
             }
             catch { }
 
-            drawpiece();
+            if (tetramino!=null)
+                drawpiece();
 
             Canvas stack = new Canvas();
             stack.Name = "Cstack";
@@ -50,7 +52,7 @@ namespace MyTetris
                 for (int j = 0; j < cols; j++)
                 {
                     Rectangle cell = new Rectangle();
-                    if (Piece[j, i] != 0)
+                    if (tetramino!=null && Piece[j, i] != 0)
                         cell.Fill = paint(Piece[j, i]);
                     else
                         cell.Fill = paint(Field[j, i]);
@@ -64,7 +66,7 @@ namespace MyTetris
                     Canvas.SetTop(cell, 32 * (i - 2) - i);
                 }
             }
-            this.GridField.Children.Add(stack);
+            GridField.Children.Add(stack);
         }
 
         private Brush paint(int c)
@@ -136,16 +138,31 @@ namespace MyTetris
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
+            bool left = true;
+            bool right = true;
+            bool down = true;
+            for (int i = 0; i < 4; i++)
+            {
+                if (tetramino.position.X + tetramino.shape[i].X -1 < 0)
+                    left = false;
+                if (tetramino.position.X + tetramino.shape[i].X +1 >= cols)
+                    right = false;
+                if (tetramino.position.Y + tetramino.shape[i].Y +1 >= rows)
+                    down = false;
+            }
             switch (e.Key)
             {
                 case Key.Left:
-                    tetramino.position.X -= 1;
+                    if (left)
+                        tetramino.position.X -= 1;
                     break;
                 case Key.Right:
-                    tetramino.position.X += 1;
+                    if (right)
+                        tetramino.position.X += 1;
                     break;
                 case Key.Down:
-                    tetramino.position.Y += 1;
+                    if (down)
+                        tetramino.position.Y += 1;
                     break;
                 default:
                     break;
