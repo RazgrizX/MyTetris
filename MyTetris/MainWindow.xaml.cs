@@ -143,9 +143,9 @@ namespace MyTetris
             bool down = true;
             for (int i = 0; i < 4; i++)
             {
-                if (tetramino.position.X + tetramino.shape[i].X -1 < 0)
+                if (tetramino.position.X + tetramino.shape[i].X -1 < 0 || Field[(int)(tetramino.position.X+tetramino.shape[i].X-1), (int)(tetramino.position.Y + tetramino.shape[i].Y)]!=0)
                     left = false;
-                if (tetramino.position.X + tetramino.shape[i].X +1 >= cols)
+                if (tetramino.position.X + tetramino.shape[i].X +1 >= cols || Field[(int)(tetramino.position.X + tetramino.shape[i].X + 1), (int)(tetramino.position.Y + tetramino.shape[i].Y)] != 0)
                     right = false;
                 if (tetramino.position.Y + tetramino.shape[i].Y +1 >= rows)
                     down = false;
@@ -167,6 +167,16 @@ namespace MyTetris
                 default:
                     break;
             }
+            drawfield();
+        }
+
+        private void btnObstacle_Click(object sender, RoutedEventArgs e)
+        {
+            Field[3, 10] = 1;
+            Field[4, 10] = 1;
+            Field[3, 9] = 1;
+            Field[4, 9] = 1;
+            Field[5, 9] = 1;
             drawfield();
         }
     }
