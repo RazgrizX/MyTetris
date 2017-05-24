@@ -59,7 +59,7 @@ namespace MyTetris
                     else
                         cell.Fill = paint(Field[j, i]);
                     cell.StrokeThickness = 1;
-                    cell.Stroke = Brushes.Black;
+                    cell.Stroke = Brushes.Gray;
                     cell.Width = 32;
                     cell.Height = 32;
                     stack.Children.Add(cell);
@@ -169,6 +169,10 @@ namespace MyTetris
                         break;
                     case Key.Down:
                         movedown();
+                        break;
+                    case Key.Up:
+                        if(tetramino.rotate)
+                        rotate();
                         break;
                     default:
                         break;
@@ -295,6 +299,49 @@ namespace MyTetris
             Array.Clear(Piece, 0, Piece.Length);
             nextpiece();
             drawfield();
+        }
+
+        private void rotate()
+        {
+            Tetramino temp = new Tetramino(1);
+            temp.position = tetramino.position;
+            bool valid = true;
+            bool mvright = true;
+            bool mvleft = true;
+            for (int i = 0; i < 4; i++)
+            {
+                temp.shape[i].X = tetramino.shape[i].Y * -1;
+                temp.shape[i].Y = tetramino.shape[i].X;
+                if ((temp.position.X + temp.shape[i].X ) >= cols || (temp.position.X + temp.shape[i].X) <0 || (temp.position.Y + temp.shape[i].Y) > rows || Field[(int)(temp.position.X + temp.shape[i].X), (int)(temp.position.Y + temp.shape[i].Y)]!=0)
+                    valid = false;
+                if ((temp.position.X + temp.shape[i].X+1) >= cols || (temp.position.X + temp.shape[i].X+1) < 0 || (temp.position.Y + temp.shape[i].Y) >= rows || Field[(int)(temp.position.X + temp.shape[i].X + 1), (int)(temp.position.Y + temp.shape[i].Y)] != 0)
+                    mvright = false;
+                if ((temp.position.X + temp.shape[i].X - 1) >= cols || (temp.position.X + temp.shape[i].X - 1) < 0 || (temp.position.Y + temp.shape[i].Y) >= rows || Field[(int)(temp.position.X + temp.shape[i].X - 1), (int)(temp.position.Y + temp.shape[i].Y)] != 0)
+                    mvleft = false; 
+            }
+            if (valid)
+            {
+                tetramino.shape = temp.shape;
+                tetramino.position = temp.position;
+            }
+            else
+            {
+                if (mvright)
+                {
+                    temp.position.X += 1;
+                    tetramino.shape = temp.shape;
+                    tetramino.position = temp.position;
+                }
+                else
+                {
+                    if (mvleft)
+                    {
+                        temp.position.X -= 1;
+                        tetramino.shape = temp.shape;
+                        tetramino.position = temp.position;
+                    }
+                }
+            }
         }
     }
 }
