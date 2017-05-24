@@ -20,12 +20,12 @@ namespace MyTetris
         private static int rows = 22;
         private static int cols = 10;
         private int[,] Field = new int[cols, rows];
-        private int[,] Piece = new int[cols, rows];
-        private Tetramino tetramino;
+        private Tetramino piece;
 
         public MainWindow()
         {
             InitializeComponent();
+            drawfield();
         }
 
         private void drawfield()
@@ -48,10 +48,7 @@ namespace MyTetris
                 for (int j = 0; j < cols; j++)
                 {
                     Rectangle cell = new Rectangle();
-                    if (Piece[j, i] != 0)
-                        cell.Fill = paint(Piece[j, i]);
-                    else
-                        cell.Fill = paint(Field[j, i]);
+                    cell.Fill = paint(Field[j, i]);
                     cell.StrokeThickness = 1;
                     cell.Stroke = Brushes.Black;
                     cell.Width = 32;
@@ -100,31 +97,14 @@ namespace MyTetris
             return brush;
         }
 
-        private void nextpiece()
-        {
-            Array.Clear(Piece, 0, Piece.Length);
-            Random n = new Random();
-            tetramino = new Tetramino(n.Next(1, 8));
-            for (int i = 0; i < 4; i++)
-            {
-                Piece[(int)(tetramino.position.X + tetramino.shape[i].X), (int)(tetramino.position.Y + tetramino.shape[i].Y)] = tetramino.colorcode;
-            }
-        }
-
         private void btnTestField_Click(object sender, RoutedEventArgs e)
         {
-            Array.Clear(Field, 0, Field.Length);
+            Field = new int[cols, rows];
             Random n = new Random();
             for (int i = 0; i < 50; i++)
             {
                 Field[n.Next(0, cols), n.Next(0, rows)] = n.Next(0, 8);
             }
-            drawfield();
-        }
-
-        private void btnStart_Click(object sender, RoutedEventArgs e)
-        {
-            nextpiece();
             drawfield();
         }
     }
