@@ -40,7 +40,7 @@ namespace MyTetris
             }
             catch { }
 
-            if (tetramino!=null)
+            if (tetramino != null)
                 drawpiece();
 
             Canvas stack = new Canvas();
@@ -52,7 +52,7 @@ namespace MyTetris
                 for (int j = 0; j < cols; j++)
                 {
                     Rectangle cell = new Rectangle();
-                    if (tetramino!=null && Piece[j, i] != 0)
+                    if (tetramino != null && Piece[j, i] != 0)
                         cell.Fill = paint(Piece[j, i]);
                     else
                         cell.Fill = paint(Field[j, i]);
@@ -105,9 +105,10 @@ namespace MyTetris
         }
 
         private void nextpiece()
-        { 
+        {
             Random n = new Random();
             tetramino = new Tetramino(n.Next(1, 8));
+            movedown();
         }
 
         private void drawpiece()
@@ -138,36 +139,35 @@ namespace MyTetris
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            bool left = true;
-            bool right = true;
-            bool down = true;
-            for (int i = 0; i < 4; i++)
+            if (tetramino != null)
             {
-                if (tetramino.position.X + tetramino.shape[i].X -1 < 0 || Field[(int)(tetramino.position.X+tetramino.shape[i].X-1), (int)(tetramino.position.Y + tetramino.shape[i].Y)]!=0)
-                    left = false;
-                if (tetramino.position.X + tetramino.shape[i].X +1 >= cols || Field[(int)(tetramino.position.X + tetramino.shape[i].X + 1), (int)(tetramino.position.Y + tetramino.shape[i].Y)] != 0)
-                    right = false;
-                if (tetramino.position.Y + tetramino.shape[i].Y +1 >= rows)
-                    down = false;
+                bool left = true;
+                bool right = true;
+                for (int i = 0; i < 4; i++)
+                {
+                    if (tetramino.position.X + tetramino.shape[i].X - 1 < 0 || Field[(int)(tetramino.position.X + tetramino.shape[i].X - 1), (int)(tetramino.position.Y + tetramino.shape[i].Y)] != 0)
+                        left = false;
+                    if (tetramino.position.X + tetramino.shape[i].X + 1 >= cols || Field[(int)(tetramino.position.X + tetramino.shape[i].X + 1), (int)(tetramino.position.Y + tetramino.shape[i].Y)] != 0)
+                        right = false;
+                }
+                switch (e.Key)
+                {
+                    case Key.Left:
+                        if (left)
+                            tetramino.position.X -= 1;
+                        break;
+                    case Key.Right:
+                        if (right)
+                            tetramino.position.X += 1;
+                        break;
+                    case Key.Down:
+                        movedown();
+                        break;
+                    default:
+                        break;
+                }
+                drawfield();
             }
-            switch (e.Key)
-            {
-                case Key.Left:
-                    if (left)
-                        tetramino.position.X -= 1;
-                    break;
-                case Key.Right:
-                    if (right)
-                        tetramino.position.X += 1;
-                    break;
-                case Key.Down:
-                    if (down)
-                        tetramino.position.Y += 1;
-                    break;
-                default:
-                    break;
-            }
-            drawfield();
         }
 
         private void btnObstacle_Click(object sender, RoutedEventArgs e)
@@ -178,6 +178,32 @@ namespace MyTetris
             Field[4, 9] = 1;
             Field[5, 9] = 1;
             drawfield();
+        }
+
+        private void movedown()
+        {
+            bool down = true;
+            for (int i = 0; i < 4; i++)
+            {
+                if (tetramino.position.Y + tetramino.shape[i].Y + 1 >= rows || Field[(int)(tetramino.position.X + tetramino.shape[i].X), (int)(tetramino.position.Y + tetramino.shape[i].Y + 1)] != 0)
+                {
+                    down = false;
+                }
+            }
+            if (down)
+                tetramino.position.Y += 1;
+            else
+            {
+                anchor();
+                nextpiece();
+            }
+        }
+        private void anchor()
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                Field[(int)(tetramino.position.X + tetramino.shape[i].X), (int)(tetramino.position.Y + tetramino.shape[i].Y)] = tetramino.colorcode;
+            }
         }
     }
 }
