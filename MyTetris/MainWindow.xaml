@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MyTetris"
         mc:Ignorable="d"
-        Title="MainWindow" Height="700" Width="500">
+        Title="MainWindow" Height="700" Width="500" KeyDown="Window_KeyDown">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="340"/>
@@ -14,7 +14,7 @@
         <Grid x:Name="GridField" HorizontalAlignment="Left" Grid.Column="0" Width="320"  Height="640" Margin="10,10,0,-102" VerticalAlignment="Top"/>
         <Label x:Name="label" Content="Label" Grid.Column="1" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
         <Button x:Name="btnTestField" Content="Test Field" Grid.Column="1" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="75" Click="btnTestField_Click"/>
-        <Button x:Name="btnStart" Content="Button" Grid.Column="1" HorizontalAlignment="Left" Margin="10,68,0,0" VerticalAlignment="Top" Width="75" Click="btnStart_Click"/>
+        <Button x:Name="btnStart" Content="Start" Grid.Column="1" HorizontalAlignment="Left" Margin="10,68,0,0" VerticalAlignment="Top" Width="75" Click="btnStart_Click"/>
 
     </Grid>
 </Window>

@@ -39,6 +39,8 @@ namespace MyTetris
             }
             catch { }
 
+            drawpiece();
+
             Canvas stack = new Canvas();
             stack.Name = "Cstack";
             stack.Width = 310;
@@ -101,10 +103,14 @@ namespace MyTetris
         }
 
         private void nextpiece()
-        {
-            Array.Clear(Piece, 0, Piece.Length);
+        { 
             Random n = new Random();
             tetramino = new Tetramino(n.Next(1, 8));
+        }
+
+        private void drawpiece()
+        {
+            Array.Clear(Piece, 0, Piece.Length);
             for (int i = 0; i < 4; i++)
             {
                 Piece[(int)(tetramino.position.X + tetramino.shape[i].X), (int)(tetramino.position.Y + tetramino.shape[i].Y)] = tetramino.colorcode;
@@ -125,6 +131,25 @@ namespace MyTetris
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
             nextpiece();
+            drawfield();
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case Key.Left:
+                    tetramino.position.X -= 1;
+                    break;
+                case Key.Right:
+                    tetramino.position.X += 1;
+                    break;
+                case Key.Down:
+                    tetramino.position.Y += 1;
+                    break;
+                default:
+                    break;
+            }
             drawfield();
         }
     }
