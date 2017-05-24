@@ -22,12 +22,83 @@ namespace MyTetris
         private static int cols = 10;
         private int[,] Field = new int[cols, rows];
         private int[,] Piece = new int[cols, rows];
-        private Tetramino tetramino;
         private static readonly Random getrandom = new Random();
+        private Tetramino tetramino;
+        private Tetramino next;
 
         public MainWindow()
         {
             InitializeComponent();
+            update();
+            drawpreview();
+        }
+
+        private void btnTestField_Click(object sender, RoutedEventArgs e)
+        {
+            Array.Clear(Field, 0, Field.Length);
+            for (int i = 0; i < 50; i++)
+            {
+                Field[getrandom.Next(0, cols), getrandom.Next(0, rows)] = getrandom.Next(0, 8);
+            }
+            update();
+        }
+
+        private void btnStart_Click(object sender, RoutedEventArgs e)
+        {
+            newgame();
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (tetramino != null)
+            {
+                bool left = true;
+                bool right = true;
+                for (int i = 0; i < 4; i++)
+                {
+                    if (tetramino.position.X + tetramino.shape[i].X - 1 < 0 || Field[(int)(tetramino.position.X + tetramino.shape[i].X - 1), (int)(tetramino.position.Y + tetramino.shape[i].Y)] != 0)
+                        left = false;
+                    if (tetramino.position.X + tetramino.shape[i].X + 1 >= cols || Field[(int)(tetramino.position.X + tetramino.shape[i].X + 1), (int)(tetramino.position.Y + tetramino.shape[i].Y)] != 0)
+                        right = false;
+                }
+                switch (e.Key)
+                {
+                    case Key.Left:
+                        if (left)
+                            tetramino.position.X -= 1;
+                        break;
+                    case Key.Right:
+                        if (right)
+                            tetramino.position.X += 1;
+                        break;
+                    case Key.Down:
+                        movedown();
+                        break;
+                    case Key.Up:
+                        if (tetramino.rotate)
+                            rotate();
+                        break;
+                    default:
+                        break;
+                }
+                update();
+            }
+        }
+
+        private void btnObstacle_Click(object sender, RoutedEventArgs e)
+        {
+            Field[3, 10] = 1;
+            Field[4, 10] = 1;
+            Field[3, 9] = 1;
+            Field[4, 9] = 1;
+            Field[5, 9] = 1;
+            update();
+        }
+
+        private void update()
+        {
+            if (tetramino != null)
+                Piece = drawpiece(tetramino, Piece);
             drawfield();
         }
 
@@ -41,9 +112,6 @@ namespace MyTetris
                 GridField.Children.Remove(element);
             }
             catch { }
-
-            if (tetramino != null)
-                drawpiece();
 
             Canvas stack = new Canvas();
             stack.Name = "Cstack";
@@ -63,7 +131,6 @@ namespace MyTetris
                     cell.Width = 32;
                     cell.Height = 32;
                     stack.Children.Add(cell);
-
                     Canvas.SetLeft(cell, 32 * j - j);
                     Canvas.SetTop(cell, 32 * (i - 2) - i);
                 }
@@ -115,80 +182,22 @@ namespace MyTetris
             }
             else
             {
-                tetramino = new Tetramino(getrandom.Next(1, 8));
+                tetramino = next;
+                tetramino.position = new Point(4, 1);
+                next = new Tetramino(getrandom.Next(1, 8));
+                drawpreview();
                 movedown();
             }
         }
 
-        private void drawpiece()
+        private int[,] drawpiece(Tetramino t, int[,] item)
         {
-            Array.Clear(Piece, 0, Piece.Length);
+            Array.Clear(item, 0, item.Length);
             for (int i = 0; i < 4; i++)
             {
-                Piece[(int)(tetramino.position.X + tetramino.shape[i].X), (int)(tetramino.position.Y + tetramino.shape[i].Y)] = tetramino.colorcode;
+                item[(int)(t.position.X + t.shape[i].X), (int)(t.position.Y + t.shape[i].Y)] = t.colorcode;
             }
-        }
-
-        private void btnTestField_Click(object sender, RoutedEventArgs e)
-        {
-            Array.Clear(Field, 0, Field.Length);
-            for (int i = 0; i < 50; i++)
-            {
-                Field[getrandom.Next(0, cols), getrandom.Next(0, rows)] = getrandom.Next(0, 8);
-            }
-            drawfield();
-        }
-
-        private void btnStart_Click(object sender, RoutedEventArgs e)
-        {
-            newgame();
-        }
-
-        private void Window_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (tetramino != null)
-            {
-                bool left = true;
-                bool right = true;
-                for (int i = 0; i < 4; i++)
-                {
-                    if (tetramino.position.X + tetramino.shape[i].X - 1 < 0 || Field[(int)(tetramino.position.X + tetramino.shape[i].X - 1), (int)(tetramino.position.Y + tetramino.shape[i].Y)] != 0)
-                        left = false;
-                    if (tetramino.position.X + tetramino.shape[i].X + 1 >= cols || Field[(int)(tetramino.position.X + tetramino.shape[i].X + 1), (int)(tetramino.position.Y + tetramino.shape[i].Y)] != 0)
-                        right = false;
-                }
-                switch (e.Key)
-                {
-                    case Key.Left:
-                        if (left)
-                            tetramino.position.X -= 1;
-                        break;
-                    case Key.Right:
-                        if (right)
-                            tetramino.position.X += 1;
-                        break;
-                    case Key.Down:
-                        movedown();
-                        break;
-                    case Key.Up:
-                        if(tetramino.rotate)
-                        rotate();
-                        break;
-                    default:
-                        break;
-                }
-                drawfield();
-            }
-        }
-
-        private void btnObstacle_Click(object sender, RoutedEventArgs e)
-        {
-            Field[3, 10] = 1;
-            Field[4, 10] = 1;
-            Field[3, 9] = 1;
-            Field[4, 9] = 1;
-            Field[5, 9] = 1;
-            drawfield();
+            return item;
         }
 
         private void movedown()
@@ -248,10 +257,10 @@ namespace MyTetris
                 }
                 int size = full.Count(x => x != 0);
                 bool unic = true;
-                for (int u=0; u < size; u++)
+                for (int u = 0; u < size; u++)
                 {
                     if (full[u] == line)
-                        unic = false; 
+                        unic = false;
                 }
                 if (all && unic)
                     full[size] = line;
@@ -264,19 +273,19 @@ namespace MyTetris
         {
             int count = full.Count(x => x != 0);
 
-            for(int k=0; k<7;k++)
-            { 
+            for (int k = 0; k < 7; k++)
+            {
                 for (int i = 0; i < count; i++)
                 {
                     for (int j = 0; j < cols; j++)
                     {
-                        Field[j, full[i]] = getrandom.Next(1,8);
+                        Field[j, full[i]] = getrandom.Next(1, 8);
                     }
                 }
-                drawfield();
+                update();
                 await Task.Delay(100);
             }
-            
+
             for (int l = 0; l < count; l++)
             {
                 int line = full.Where(f => f > 0).Min();
@@ -284,21 +293,23 @@ namespace MyTetris
                 {
                     for (int j = 0; j < cols; j++)
                     {
-                        Field[j, i] =Field[j,i-1];              
+                        Field[j, i] = Field[j, i - 1];
                     }
                 }
                 full[Array.IndexOf(full, line)] = 0;
             }
-            drawfield();
+            update();
             await Task.Delay(500);
         }
 
         private void newgame()
         {
+
             Array.Clear(Field, 0, Field.Length);
             Array.Clear(Piece, 0, Piece.Length);
+            next = new Tetramino(getrandom.Next(1, 8));
             nextpiece();
-            drawfield();
+            update();
         }
 
         private void rotate()
@@ -312,12 +323,12 @@ namespace MyTetris
             {
                 temp.shape[i].X = tetramino.shape[i].Y * -1;
                 temp.shape[i].Y = tetramino.shape[i].X;
-                if ((temp.position.X + temp.shape[i].X ) >= cols || (temp.position.X + temp.shape[i].X) <0 || (temp.position.Y + temp.shape[i].Y) > rows || Field[(int)(temp.position.X + temp.shape[i].X), (int)(temp.position.Y + temp.shape[i].Y)]!=0)
+                if ((temp.position.X + temp.shape[i].X) >= cols || (temp.position.X + temp.shape[i].X) < 0 || (temp.position.Y + temp.shape[i].Y) > rows || Field[(int)(temp.position.X + temp.shape[i].X), (int)(temp.position.Y + temp.shape[i].Y)] != 0)
                     valid = false;
-                if ((temp.position.X + temp.shape[i].X+1) >= cols || (temp.position.X + temp.shape[i].X+1) < 0 || (temp.position.Y + temp.shape[i].Y) >= rows || Field[(int)(temp.position.X + temp.shape[i].X + 1), (int)(temp.position.Y + temp.shape[i].Y)] != 0)
+                if ((temp.position.X + temp.shape[i].X + 1) >= cols || (temp.position.X + temp.shape[i].X + 1) < 0 || (temp.position.Y + temp.shape[i].Y) >= rows || Field[(int)(temp.position.X + temp.shape[i].X + 1), (int)(temp.position.Y + temp.shape[i].Y)] != 0)
                     mvright = false;
                 if ((temp.position.X + temp.shape[i].X - 1) >= cols || (temp.position.X + temp.shape[i].X - 1) < 0 || (temp.position.Y + temp.shape[i].Y) >= rows || Field[(int)(temp.position.X + temp.shape[i].X - 1), (int)(temp.position.Y + temp.shape[i].Y)] != 0)
-                    mvleft = false; 
+                    mvleft = false;
             }
             if (valid)
             {
@@ -343,5 +354,43 @@ namespace MyTetris
                 }
             }
         }
+
+        private void drawpreview()
+        {
+
+            try
+            {
+                var element = GridPreview.Children
+        .OfType<Canvas>()
+        .FirstOrDefault(e => e.Name == "Cpreview");
+                GridPreview.Children.Remove(element);
+            }
+            catch { }
+            int[,] Preview = new int[4, 4];
+            if (next != null)
+                Preview = drawpiece(next, Preview);
+
+            Canvas stack = new Canvas();
+            stack.Name = "Cpreview";
+            stack.Width = 128;
+            stack.Height = 128;
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    Rectangle cell = new Rectangle();
+                    cell.Fill = paint(Preview[j, i]);
+                    cell.StrokeThickness = 1;
+                    cell.Stroke = Brushes.Gray;
+                    cell.Width = 32;
+                    cell.Height = 32;
+                    stack.Children.Add(cell);
+                    Canvas.SetLeft(cell, 32 * j - j);
+                    Canvas.SetTop(cell, 32 * i - i);
+                }
+            }
+            GridPreview.Children.Add(stack);
+        }
+
     }
 }

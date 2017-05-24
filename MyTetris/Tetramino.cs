@@ -16,7 +16,7 @@ namespace MyTetris
         public Tetramino(int s)
         {
             shape = new Point[4];
-            position = new Point(4,1);
+            position = new Point(2,2);
             switch (s)
             {
                 case 1: //I
