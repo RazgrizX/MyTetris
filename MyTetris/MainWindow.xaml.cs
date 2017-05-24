@@ -1,0 +1,111 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace MyTetris
+{
+    public partial class MainWindow : Window
+    {
+        private static int rows = 22;
+        private static int cols = 10;
+        private int[,] Field = new int[cols, rows];
+        private Tetramino piece;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            drawfield();
+        }
+
+        private void drawfield()
+        {
+            try
+            {
+                var element = GridField.Children
+        .OfType<Canvas>()
+        .FirstOrDefault(e => e.Name == "Cstack");
+                GridField.Children.Remove(element);
+            }
+            catch { }
+
+            Canvas stack = new Canvas();
+            stack.Name = "Cstack";
+            stack.Width = 310;
+            stack.Height = 620;
+            for (int i = 2; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    Rectangle cell = new Rectangle();
+                    cell.Fill = paint(Field[j, i]);
+                    cell.StrokeThickness = 1;
+                    cell.Stroke = Brushes.Black;
+                    cell.Width = 32;
+                    cell.Height = 32;
+                    stack.Children.Add(cell);
+
+                    Canvas.SetLeft(cell, 32 * j - j);
+                    Canvas.SetTop(cell, 32 * (i - 2) - i);
+                }
+            }
+            this.GridField.Children.Add(stack);
+        }
+
+        private Brush paint(int c)
+        {
+            Brush brush = Brushes.Transparent;
+            switch (c)
+            {
+                case 0:
+                    brush = Brushes.Transparent;
+                    break;
+                case 1:
+                    brush = Brushes.Red;
+                    break;
+                case 2:
+                    brush = Brushes.Orange;
+                    break;
+                case 3:
+                    brush = Brushes.Yellow;
+                    break;
+                case 4:
+                    brush = Brushes.Green;
+                    break;
+                case 5:
+                    brush = Brushes.Cyan;
+                    break;
+                case 6:
+                    brush = Brushes.Blue;
+                    break;
+                case 7:
+                    brush = Brushes.Violet;
+                    break;
+                default:
+                    break;
+            }
+            return brush;
+        }
+
+        private void btnTestField_Click(object sender, RoutedEventArgs e)
+        {
+            Field = new int[cols, rows];
+            Random n = new Random();
+            for (int i = 0; i < 50; i++)
+            {
+                Field[n.Next(0, cols), n.Next(0, rows)] = n.Next(0, 8);
+            }
+            drawfield();
+        }
+    }
+}
