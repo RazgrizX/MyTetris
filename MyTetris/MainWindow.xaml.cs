@@ -106,9 +106,19 @@ namespace MyTetris
 
         private void nextpiece()
         {
-            Random n = new Random();
-            tetramino = new Tetramino(n.Next(1, 8));
-            movedown();
+            if (over())
+            {
+                MessageBox.Show("Your Score: xxx", "Game over");
+                Array.Clear(Field, 0, Field.Length);
+                Array.Clear(Piece, 0, Piece.Length);
+                tetramino = null;
+            }
+            else
+            {
+                Random n = new Random();
+                tetramino = new Tetramino(n.Next(1, 8));
+                movedown();
+            }
         }
 
         private void drawpiece()
@@ -198,12 +208,26 @@ namespace MyTetris
                 nextpiece();
             }
         }
+
         private void anchor()
         {
             for (int i = 0; i < 4; i++)
             {
                 Field[(int)(tetramino.position.X + tetramino.shape[i].X), (int)(tetramino.position.Y + tetramino.shape[i].Y)] = tetramino.colorcode;
             }
+        }
+
+        private bool over()
+        {
+            bool over = false;
+            for (int i = 0; i < cols; i++)
+            {
+                if (Field[i, 1] != 0)
+                {
+                    over = true;
+                }
+            }
+            return over;
         }
     }
 }
