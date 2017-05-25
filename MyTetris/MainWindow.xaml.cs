@@ -25,6 +25,8 @@ namespace MyTetris
         private static readonly Random getrandom = new Random();
         private Tetramino tetramino;
         private Tetramino next;
+        private int lvl;
+        private int score;
 
         public MainWindow()
         {
@@ -177,7 +179,7 @@ namespace MyTetris
         {
             if (over())
             {
-                MessageBox.Show("Your Score: xxx", "Game over");
+                MessageBox.Show("Your Score: "+score, "Game over");
                 tetramino = null;
             }
             else
@@ -272,7 +274,7 @@ namespace MyTetris
         private async void clearlines(int[] full)
         {
             int count = full.Count(x => x != 0);
-
+            
             for (int k = 0; k < 7; k++)
             {
                 for (int i = 0; i < count; i++)
@@ -299,7 +301,9 @@ namespace MyTetris
                 full[Array.IndexOf(full, line)] = 0;
             }
             update();
+            scoring(count);
             await Task.Delay(500);
+            
         }
 
         private void newgame()
@@ -307,6 +311,8 @@ namespace MyTetris
 
             Array.Clear(Field, 0, Field.Length);
             Array.Clear(Piece, 0, Piece.Length);
+            score = 0;
+            lvl = 0;
             next = new Tetramino(getrandom.Next(1, 8));
             nextpiece();
             update();
@@ -392,5 +398,26 @@ namespace MyTetris
             GridPreview.Children.Add(stack);
         }
 
+        private void scoring(int lines)
+        {
+            switch (lines)
+            {
+                case 1:
+                    score += 40 * (lvl + 1);
+                    break;
+                case 2:
+                    score += 100 * (lvl + 1);
+                    break;
+                case 3:
+                    score += 300 * (lvl + 1);
+                    break;
+                case 4:
+                    score += 1200 * (lvl + 1);
+                    break;
+                default:
+                    break;
+            }
+            lblnumber.Content = score.ToString();
+        }
     }
 }
