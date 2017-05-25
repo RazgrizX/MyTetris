@@ -25,6 +25,7 @@ namespace MyTetris
         private static readonly Random getrandom = new Random();
         private Tetramino tetramino;
         private Tetramino next;
+        private int linescleared;
         private int lvl;
         private int score;
 
@@ -302,6 +303,7 @@ namespace MyTetris
             }
             update();
             scoring(count);
+            checklvl(count);
             await Task.Delay(500);
             
         }
@@ -417,7 +419,13 @@ namespace MyTetris
                 default:
                     break;
             }
-            lblnumber.Content = score.ToString();
+            lblscrnum.Content = score.ToString();
+        }
+        private void checklvl(int lines)
+        {
+            linescleared += lines;
+            lvl = (int)(Math.Truncate((decimal)linescleared / 10));
+            lbllvlnum.Content = lvl.ToString();
         }
     }
 }
