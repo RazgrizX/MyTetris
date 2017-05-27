@@ -28,10 +28,12 @@ namespace MyTetris
         private int linescleared;
         private int lvl;
         private int score;
+        DispatcherTimer autodown = new DispatcherTimer();
 
         public MainWindow()
         {
             InitializeComponent();
+            autodown.Tick += new EventHandler(tickdown);
             update();
             drawpreview();
         }
@@ -68,11 +70,17 @@ namespace MyTetris
                 {
                     case Key.Left:
                         if (left)
+                        {
                             tetramino.position.X -= 1;
+                            update();
+                        }
                         break;
                     case Key.Right:
                         if (right)
+                        {
                             tetramino.position.X += 1;
+                            update();
+                        }
                         break;
                     case Key.Down:
                         movedown();
@@ -84,7 +92,7 @@ namespace MyTetris
                     default:
                         break;
                 }
-                update();
+
             }
         }
 
@@ -180,13 +188,15 @@ namespace MyTetris
         {
             if (over())
             {
+                autodown.Stop();
                 MessageBox.Show("Your Score: "+score, "Game over");
                 tetramino = null;
+                
             }
             else
             {
                 tetramino = next;
-                tetramino.position = new Point(4, 1);
+                tetramino.position = new Point(5, 1);
                 next = new Tetramino(getrandom.Next(1, 8));
                 drawpreview();
                 movedown();
@@ -220,6 +230,8 @@ namespace MyTetris
                 anchor();
                 nextpiece();
             }
+            autodown.Interval = new TimeSpan(0, 0, 1);
+            update();
         }
 
         private void anchor()
@@ -286,7 +298,7 @@ namespace MyTetris
                     }
                 }
                 update();
-                await Task.Delay(100);
+                await Task.Delay(50);
             }
 
             for (int l = 0; l < count; l++)
@@ -310,14 +322,16 @@ namespace MyTetris
 
         private void newgame()
         {
-
+            
             Array.Clear(Field, 0, Field.Length);
             Array.Clear(Piece, 0, Piece.Length);
             score = 0;
             lvl = 0;
+            autodown.Interval = new TimeSpan(0, 0, 1);
             next = new Tetramino(getrandom.Next(1, 8));
             nextpiece();
             update();
+            autodown.Start();
         }
 
         private void rotate()
@@ -361,6 +375,7 @@ namespace MyTetris
                     }
                 }
             }
+            update();
         }
 
         private void drawpreview()
@@ -426,6 +441,11 @@ namespace MyTetris
             linescleared += lines;
             lvl = (int)(Math.Truncate((decimal)linescleared / 10));
             lbllvlnum.Content = lvl.ToString();
+        }
+
+        private void tickdown(object sender, EventArgs e)
+        {
+            movedown();
         }
     }
 }
