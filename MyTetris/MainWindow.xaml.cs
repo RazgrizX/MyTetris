@@ -57,30 +57,13 @@ namespace MyTetris
         {
             if (tetramino != null)
             {
-                bool left = true;
-                bool right = true;
-                for (int i = 0; i < 4; i++)
-                {
-                    if (tetramino.position.X + tetramino.shape[i].X - 1 < 0 || Field[(int)(tetramino.position.X + tetramino.shape[i].X - 1), (int)(tetramino.position.Y + tetramino.shape[i].Y)] != 0)
-                        left = false;
-                    if (tetramino.position.X + tetramino.shape[i].X + 1 >= cols || Field[(int)(tetramino.position.X + tetramino.shape[i].X + 1), (int)(tetramino.position.Y + tetramino.shape[i].Y)] != 0)
-                        right = false;
-                }
                 switch (e.Key)
                 {
                     case Key.Left:
-                        if (left)
-                        {
-                            tetramino.position.X -= 1;
-                            update();
-                        }
+                        moveleft();
                         break;
                     case Key.Right:
-                        if (right)
-                        {
-                            tetramino.position.X += 1;
-                            update();
-                        }
+                        moveright();
                         break;
                     case Key.Down:
                         movedown();
@@ -92,7 +75,6 @@ namespace MyTetris
                     default:
                         break;
                 }
-
             }
         }
 
@@ -111,6 +93,8 @@ namespace MyTetris
             if (tetramino != null)
                 Piece = drawpiece(tetramino, Piece);
             drawfield();
+            lblscrnum.Content = score.ToString();
+            lbllvlnum.Content = lvl.ToString();
         }
 
         private void drawfield()
@@ -213,6 +197,36 @@ namespace MyTetris
             return item;
         }
 
+        private void moveright()
+        {
+            bool right = true;
+            for (int i = 0; i < 4; i++)
+            {
+                if (tetramino.position.X + tetramino.shape[i].X + 1 >= cols || Field[(int)(tetramino.position.X + tetramino.shape[i].X + 1), (int)(tetramino.position.Y + tetramino.shape[i].Y)] != 0)
+                    right = false;
+            }
+            if (right)
+            {
+                tetramino.position.X += 1;
+                update();
+            }
+        }
+
+        private void moveleft()
+        {
+            bool left = true;
+            for (int i = 0; i < 4; i++)
+            {
+                if (tetramino.position.X + tetramino.shape[i].X - 1 < 0 || Field[(int)(tetramino.position.X + tetramino.shape[i].X - 1), (int)(tetramino.position.Y + tetramino.shape[i].Y)] != 0)
+                    left = false;
+            }
+            if (left)
+            {
+                tetramino.position.X -= 1;
+                update();
+            }
+        }
+
         private void movedown()
         {
             bool down = true;
@@ -313,9 +327,10 @@ namespace MyTetris
                 }
                 full[Array.IndexOf(full, line)] = 0;
             }
-            update();
             scoring(count);
             checklvl(count);
+            update();
+
             await Task.Delay(500);
             
         }
@@ -434,13 +449,11 @@ namespace MyTetris
                 default:
                     break;
             }
-            lblscrnum.Content = score.ToString();
         }
         private void checklvl(int lines)
         {
             linescleared += lines;
             lvl = (int)(Math.Truncate((decimal)linescleared / 10));
-            lbllvlnum.Content = lvl.ToString();
         }
 
         private void tickdown(object sender, EventArgs e)
