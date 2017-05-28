@@ -22,9 +22,11 @@ namespace MyTetris
         private static int cols = 10;
         private int[,] Field = new int[cols, rows];
         private int[,] Piece = new int[cols, rows];
+        private int[,] Phantom = new int[cols, rows];
         private static readonly Random getrandom = new Random();
         private Tetramino tetramino;
         private Tetramino next;
+        private Tetramino ghost;
         private int linescleared;
         private int lvl;
         private int score;
@@ -72,6 +74,9 @@ namespace MyTetris
                         if (tetramino.rotate)
                             rotate();
                         break;
+                    case Key.Space:
+                        drop();
+                        break;
                     default:
                         break;
                 }
@@ -90,8 +95,11 @@ namespace MyTetris
 
         private void update()
         {
+            upghots();
             if (tetramino != null)
                 Piece = drawpiece(tetramino, Piece);
+            if (ghost != null)
+                Phantom = drawpiece(ghost, Phantom);
             drawfield();
             lblscrnum.Content = score.ToString();
             lbllvlnum.Content = lvl.ToString();
@@ -119,6 +127,11 @@ namespace MyTetris
                     Rectangle cell = new Rectangle();
                     if (tetramino != null && Piece[j, i] != 0)
                         cell.Fill = paint(Piece[j, i]);
+                    else if (ghost != null && Phantom[j, i] != 0)
+                    {
+                        cell.Fill = paint(Phantom[j, i]);
+                        cell.Opacity = 0.35;
+                    }
                     else
                         cell.Fill = paint(Field[j, i]);
                     cell.StrokeThickness = 1;
@@ -175,12 +188,15 @@ namespace MyTetris
                 autodown.Stop();
                 MessageBox.Show("Your Score: "+score, "Game over");
                 tetramino = null;
+                ghost = null;
                 
             }
             else
             {
                 tetramino = next;
                 tetramino.position = new Point(5, 1);
+                ghost = new Tetramino(tetramino.colorcode);
+                ghost.colorcode = tetramino.colorcode;
                 next = new Tetramino(getrandom.Next(1, 8));
                 drawpreview();
                 movedown();
@@ -229,14 +245,7 @@ namespace MyTetris
 
         private void movedown()
         {
-            bool down = true;
-            for (int i = 0; i < 4; i++)
-            {
-                if (tetramino.position.Y + tetramino.shape[i].Y + 1 >= rows || Field[(int)(tetramino.position.X + tetramino.shape[i].X), (int)(tetramino.position.Y + tetramino.shape[i].Y + 1)] != 0)
-                {
-                    down = false;
-                }
-            }
+            bool down = checkdown(tetramino);
             if (down)
                 tetramino.position.Y += 1;
             else
@@ -340,12 +349,12 @@ namespace MyTetris
             
             Array.Clear(Field, 0, Field.Length);
             Array.Clear(Piece, 0, Piece.Length);
+            Array.Clear(Phantom, 0, Phantom.Length);
             score = 0;
             lvl = 0;
             autodown.Interval = new TimeSpan(0, 0, 1);
             next = new Tetramino(getrandom.Next(1, 8));
             nextpiece();
-            update();
             autodown.Start();
         }
 
@@ -458,6 +467,39 @@ namespace MyTetris
 
         private void tickdown(object sender, EventArgs e)
         {
+            movedown();
+        }
+
+        private void upghots()
+        {
+            if (ghost != null)
+            {
+                ghost.position = tetramino.position;
+                ghost.shape = tetramino.shape;
+                bool down = checkdown(ghost);
+                while (down)
+                {
+                    ghost.position.Y += 1;
+                    down = checkdown(ghost);
+                }
+            }
+        }
+
+        private bool checkdown(Tetramino t)
+        {
+            bool down = true;
+            for (int i = 0; i < 4; i++)
+            {
+                if (t.position.Y + t.shape[i].Y + 1 >= rows || Field[(int)(t.position.X + t.shape[i].X), (int)(t.position.Y + t.shape[i].Y + 1)] != 0)
+                {
+                    down = false;
+                }
+            }
+            return down;
+        }
+        private void drop()
+        {
+            tetramino.position = ghost.position;
             movedown();
         }
     }
