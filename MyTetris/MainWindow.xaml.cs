@@ -31,6 +31,7 @@ namespace MyTetris
         private int lvl;
         private int score;
         DispatcherTimer autodown = new DispatcherTimer();
+        private TimeSpan speed;
 
         public MainWindow()
         {
@@ -110,14 +111,19 @@ namespace MyTetris
             try
             {
                 var element = GridField.Children
-        .OfType<Canvas>()
+        .OfType<Border>()
         .FirstOrDefault(e => e.Name == "Cstack");
                 GridField.Children.Remove(element);
             }
             catch { }
+            Border brd = new Border();
+            brd.Name = "Cstack";
+            brd.BorderThickness = new Thickness(2);
+            brd.BorderBrush = Brushes.Black;
+            brd.Width = 313;
+            brd.Height = 623;
 
             Canvas stack = new Canvas();
-            stack.Name = "Cstack";
             stack.Width = 310;
             stack.Height = 620;
             for (int i = 2; i < rows; i++)
@@ -143,7 +149,8 @@ namespace MyTetris
                     Canvas.SetTop(cell, 32 * (i - 2) - i);
                 }
             }
-            GridField.Children.Add(stack);
+            brd.Child = stack;
+            GridField.Children.Add(brd);
         }
 
         private Brush paint(int c)
@@ -186,10 +193,10 @@ namespace MyTetris
             if (over())
             {
                 autodown.Stop();
-                MessageBox.Show("Your Score: "+score, "Game over");
+                MessageBox.Show("Your Score: " + score, "Game over");
                 tetramino = null;
                 ghost = null;
-                
+                ckbfast.IsEnabled = true;
             }
             else
             {
@@ -253,7 +260,7 @@ namespace MyTetris
                 anchor();
                 nextpiece();
             }
-            autodown.Interval = new TimeSpan(0, 0, 1);
+            autodown.Interval = speed;
             update();
         }
 
@@ -310,7 +317,7 @@ namespace MyTetris
         private async void clearlines(int[] full)
         {
             int count = full.Count(x => x != 0);
-            
+
             for (int k = 0; k < 7; k++)
             {
                 for (int i = 0; i < count; i++)
@@ -341,18 +348,19 @@ namespace MyTetris
             update();
 
             await Task.Delay(500);
-            
+
         }
 
         private void newgame()
         {
-            
+            ckbfast.IsEnabled = false;
             Array.Clear(Field, 0, Field.Length);
             Array.Clear(Piece, 0, Piece.Length);
             Array.Clear(Phantom, 0, Phantom.Length);
             score = 0;
             lvl = 0;
-            autodown.Interval = new TimeSpan(0, 0, 1);
+            speed = new TimeSpan(0, 0, 0, 0, 1000);
+            autodown.Interval = speed;
             next = new Tetramino(getrandom.Next(1, 8));
             nextpiece();
             autodown.Start();
@@ -462,7 +470,13 @@ namespace MyTetris
         private void checklvl(int lines)
         {
             linescleared += lines;
+            if (!ckbfast.IsChecked.Value) //Original
             lvl = (int)(Math.Truncate((decimal)linescleared / 10));
+            else  //Fast leveling test
+            lvl = (int)(Math.Truncate((decimal)linescleared / 1));
+
+            int time = Convert.ToInt32(Math.Round(1000 * Math.Pow(0.85, lvl) + lvl));
+            speed = new TimeSpan(0, 0, 0, 0, time);
         }
 
         private void tickdown(object sender, EventArgs e)
